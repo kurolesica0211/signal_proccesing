@@ -31,9 +31,10 @@ public class AlertGenerator implements PatientDataGenerator {
           outputStrategy.output(patientId, System.currentTimeMillis(), "Alert", "resolved");
         }
       } else {
-        double Lambda = 0.1; // Average rate (alerts per period), adjust based on desired frequency
-        double p = -Math.expm1(-Lambda); // Probability of at least one alert in the period
-        boolean alertTriggered = RANDOM_GENERATOR.nextDouble() < p;
+        double lambda = 0.1; // Average rate (alerts per period), adjust based on desired frequency
+        // One-character variable names are discouraged
+        double prob = -Math.expm1(-lambda); // Probability of at least one alert in the period
+        boolean alertTriggered = RANDOM_GENERATOR.nextDouble() < prob;
 
         if (alertTriggered) {
           alertStates[patientId] = true;
