@@ -22,7 +22,9 @@ public class FileOutputStrategy implements OutputStrategy {
   // The name of the constant should be in UPPER_SNAKE_CASE
   public final ConcurrentHashMap<String, String> FILE_MAP = new ConcurrentHashMap<>();
 
-  /** Sets the derictory, where the file should be stored */
+  /** Sets the derictory, where the file should be stored
+   * @param baseDirectory the directory, where the file should be stored
+   */
   public FileOutputStrategy(String baseDirectory) {
 
     // I think such blank lines are permitted, as it improves readability
