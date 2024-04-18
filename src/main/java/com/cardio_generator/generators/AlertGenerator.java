@@ -16,7 +16,7 @@ public class AlertGenerator implements PatientDataGenerator {
   // Non-constant field names should be in lowerCamelCase
   private boolean[] alertStates; // false = resolved, true = pressed
 
-  /** Sets the number of patients
+  /** Sets the number of patients for alertStates.
    * @param patientCount the number of patients
    */
   public AlertGenerator(int patientCount) {
