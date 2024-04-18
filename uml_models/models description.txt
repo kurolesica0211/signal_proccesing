@@ -1,0 +1,1 @@
+﻿The class diagram generally describes every class of the project in terms of its fields and methods and also shows relations between them (use, inheritance, realization). Notions of multiplicity were omitted, because there were not any relations (aggregation, composition) for which the notions are necessary.
