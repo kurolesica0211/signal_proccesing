@@ -6,7 +6,7 @@ import com.cardio_generator.outputs.OutputStrategy;
 import java.util.Random;
 
 // Block indentations add +2 spaces, not +4, except the cases of line-breaking, where each
-// contiuating line should be indented by +4 spaces.
+// continuating line should be indented by +4 spaces.
 
 /** The class is used for generating alert data */
 public class AlertGenerator implements PatientDataGenerator {
@@ -49,4 +49,6 @@ public class AlertGenerator implements PatientDataGenerator {
       e.printStackTrace();
     }
   }
+
+  
 }

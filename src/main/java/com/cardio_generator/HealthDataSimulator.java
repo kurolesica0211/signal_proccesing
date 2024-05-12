@@ -52,6 +52,7 @@ public class HealthDataSimulator {
      * @throws IOException if an I/O error occurs while creating directories for file output strategy
      */
     private static void parseArguments(String[] args) throws IOException {
+        args = new String[] {"--output", "file:/Users/momssun/Documents/signal_proccesing/patientData"};
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-h":
