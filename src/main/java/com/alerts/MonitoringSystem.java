@@ -2,6 +2,7 @@ package com.alerts;
 
 // A system through which staff can monitor patients
 public class MonitoringSystem {
+    // Flags are needed for tests
     public static boolean alertTriggered = false;
     public static boolean alertAcknowledged = false;
 
