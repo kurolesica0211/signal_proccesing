@@ -11,9 +11,13 @@ import java.util.Scanner;
 import java.util.stream.Stream;
 
 public class FileReader implements DataReader {
+    private String path = " ";
+    public FileReader(String path) {
+        this.path = path;
+    }
 
     public void readData(DataStorage dataStorage) {
-        String path = "patientData";
+        String path = this.path.isBlank() ? "patientData" : this.path;
         try {
             String[] fileNames = getFileNames(path);
             for (String fileName : fileNames) {
@@ -59,7 +63,7 @@ public class FileReader implements DataReader {
 
     public static void main(String[] args) {
         DataStorage dataStorage = new DataStorage();
-        FileReader fileReader = new FileReader();
+        FileReader fileReader = new FileReader("patientData");
         fileReader.readData(dataStorage);
         List<Patient> patients = dataStorage.getAllPatients();
         for (Patient patient : patients) {

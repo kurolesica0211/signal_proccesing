@@ -21,10 +21,11 @@ public class tests {
     }
 
     // Running all the tests together somehow make testSaturationTrendAlert1 fail, it should be run separately
+    // THERE ARE TEST FILES IN BIN FOLDER, MAKE SURE THEY ARE IN PATEINTDATA FODLER BEFORE RUNNING THE TESTS
     @Test
     public void testFileReaderAndGetRecords() {
         DataStorage dataStorage = new DataStorage();
-        FileReader fileReader = new FileReader();
+        FileReader fileReader = new FileReader("patientData");
         fileReader.readData(dataStorage);
         List<Patient> patients = dataStorage.getAllPatients();
         List<PatientRecord> patient1 = patients.get(0).getRecords(0, Long.MAX_VALUE);

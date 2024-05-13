@@ -8,10 +8,12 @@ public class MonitoringSystem {
     public static void notifyStaff(Alert alert) {
         // Code to notify staff of an alert
         alertTriggered = true;
+        System.out.println("Alert triggered: " + alert.getCondition());
     }
 
     public static void logAlert(Alert alert) {
         // Code to log an alert
         alertAcknowledged = true;
+        System.out.println("Alert logged: " + alert.getCondition());
     }
 }

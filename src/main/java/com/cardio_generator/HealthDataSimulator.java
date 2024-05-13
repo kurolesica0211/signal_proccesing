@@ -34,6 +34,7 @@ public class HealthDataSimulator {
     private static final Random random = new Random();
 
     public static void main(String[] args) throws IOException {
+        args = new String[] { "--patient-count", "100", "--output", "file:patientData" };
         parseArguments(args);
 
         scheduler = Executors.newScheduledThreadPool(patientCount * 4);
