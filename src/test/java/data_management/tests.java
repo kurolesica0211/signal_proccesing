@@ -20,6 +20,7 @@ public class tests {
     public tests() {
     }
 
+    // Running all the tests together somehow make testSaturationTrendAlert1 fail, it should be run separately
     @Test
     public void testFileReaderAndGetRecords() {
         DataStorage dataStorage = new DataStorage();
