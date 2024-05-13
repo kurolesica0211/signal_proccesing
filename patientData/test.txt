@@ -1,0 +1,2 @@
+Patient ID: 23, Timestamp: 1715545367974, Label: ECG, Data: 0.5272823916128154
+Patient ID: 7, Timestamp: 1715545367976, Label: Saturation, Data: 95.0%

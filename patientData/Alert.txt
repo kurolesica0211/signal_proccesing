@@ -1,5 +1,0 @@
-Patient ID: 21, Timestamp: 1715522481187, Label: Alert, Data: triggered
-Patient ID: 34, Timestamp: 1715522483214, Label: Alert, Data: triggered
-Patient ID: 15, Timestamp: 1715522483215, Label: Alert, Data: triggered
-Patient ID: 35, Timestamp: 1715522484214, Label: Alert, Data: triggered
-Patient ID: 44, Timestamp: 1715522485206, Label: Alert, Data: triggered
