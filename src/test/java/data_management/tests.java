@@ -35,7 +35,7 @@ public class tests {
     }
 
     @Test
-    public void testSystolicBloodPressureAlert() {
+    public void testSystolicBloodPressureLevelAlert() {
         DataStorage dataStorage = new DataStorage();
         dataStorage.addPatientData(0, 190.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
@@ -59,12 +59,32 @@ public class tests {
     public void testSaturationLevelAlert() {
         DataStorage dataStorage = new DataStorage();
         dataStorage.addPatientData(0, 90, "Saturation", Long.parseLong("1"));
-        dataStorage.addPatientData(0, 100.0, "SystolicPressure", Long.parseLong("1"));
-        dataStorage.addPatientData(0, 100.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
         alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+    }
+
+    @Test
+    public void testSaturaitonTrendAlert() {
+        DataStorage dataStorage = new DataStorage();
+        dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
+        dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("1000"));
+        AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        System.out.println(dataStorage.getAllPatients().get(0));
+        assertTrue(MonitoringSystem.alertTriggered);
+    }
+
+    @Test
+    public void testSaturationTrendAlert1() {
+        DataStorage dataStorage = new DataStorage();
+        dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
+        dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("6000000"));
+        AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        System.out.println(dataStorage.getAllPatients().get(0));
+        assertTrue(MonitoringSystem.alertTriggered == false);
     }
 
     @Test

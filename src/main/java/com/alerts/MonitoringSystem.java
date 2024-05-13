@@ -1,5 +1,6 @@
 package com.alerts;
 
+// A system through which staff can monitor patients
 public class MonitoringSystem {
     public static boolean alertTriggered = false;
     public static boolean alertAcknowledged = false;

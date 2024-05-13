@@ -46,6 +46,7 @@ public class AlertGenerator {
         ArrayList<PatientRecord> saturation = new ArrayList<>();
         ArrayList<PatientRecord> whiteBloodCells = new ArrayList<>();
 
+        // Sorting according to record type seems logical for evaluation purposes and also enables extending functionality in the future
         for (PatientRecord record : records) {
             switch (record.getRecordType()) {
                 case "ECG":
@@ -73,6 +74,9 @@ public class AlertGenerator {
                     break;
             }
         }
+
+        // Different evaluation methods for different alarm types lets us easily extend the system
+        // although, it may be more computationally efficient to combine them into one method
         evaluateBloodPressure(systolicBloodPressure, diastolicBloodPressure);
         evaluateECG(ecgRecords);
         evaluateSaturation(saturation);
@@ -80,44 +84,66 @@ public class AlertGenerator {
     }
 
     private void evaluateHypoxemia(ArrayList<PatientRecord> saturation, ArrayList<PatientRecord> bloodPressure) {
-        for (int i = 0; i<saturation.size(); i++) {
-            String id = String.valueOf(saturation.get(0).getPatientId());
-            boolean triger1 = false; boolean triger2 = false;
-            PatientRecord record = saturation.get(i);
-            // Saturation level check
-            if (record.getMeasurementValue() < 92) {
-                triger1 = true;
-            }
+        if (saturation.size() == bloodPressure.size() && saturation.size() > 0) {
+        // Evalutates all saturation and blood pressure records and triggers an alert if two conditions are met
+            for (int i = 0; i<saturation.size(); i++) {
+                String id = String.valueOf(saturation.get(0).getPatientId());
+                boolean triger1 = false; boolean triger2 = false;
+                PatientRecord record = saturation.get(i);
+                // Saturation level check
+                if (record.getMeasurementValue() < 92) {
+                    triger1 = true;
+                }
 
-            // Blood pressure level check
-            if ((bloodPressure.get(i).getRecordType() == "SystolicPressure") && (bloodPressure.get(i).getMeasurementValue() < 90)) {
-                triger2 = true;
-            }
+                // Blood pressure level check
+                if ((bloodPressure.get(i).getRecordType() == "SystolicPressure") && (bloodPressure.get(i).getMeasurementValue() < 90)) {
+                    triger2 = true;
+                }
 
-            // Hypoxemia check
-            if (triger1 && triger2)
-                triggerAlert(new Alert(id,"Hypotensive Hypoxemia", record.getTimestamp()));
+                // Hypoxemia check
+                if (triger1 && triger2) {
+                    triggerAlert(new Alert(id,"Hypotensive Hypoxemia", record.getTimestamp()));
+                }
+            }
         }
     }
 
     private void evaluateSaturation(ArrayList<PatientRecord> saturation) {
-        for (int i = 0; i<saturation.size(); i++) {
+        // Checkts saturation data for low saturation level or dangerous trend
+        if (saturation.size() > 0) {
+            PatientRecord max = saturation.get(0);
+            PatientRecord min = max;
+            PatientRecord record = max;
             String id = String.valueOf(saturation.get(0).getPatientId());
-            PatientRecord record = saturation.get(i);
-            // Saturation level check
-            if (record.getMeasurementValue() < 92) {
-                triggerAlert(new Alert(id, "Low Saturation", record.getTimestamp()));
-            }
+            for (int i = 0; i<saturation.size(); i++) {
+                record = saturation.get(i);
+                // Saturation level check
+                if (record.getMeasurementValue() < 92) {
+                    triggerAlert(new Alert(id, "Low Saturation", record.getTimestamp()));
+                }
 
-            // Saturation trend check
-            int j = 1;
-            while ((i-j) >= 0 &&  (600000 > record.getTimestamp()-saturation.get(i-j).getTimestamp())) {
-                if (saturation.get(i-j).getMeasurementValue() - record.getMeasurementValue() > 5) {
+                // Saturation trend check
+                /*
+                * Since there is an ambiguity in the requirements,
+                * I assumed that trend alert should be triggered if the difference
+                * between the current record and any record within 10 minutes is greater than 5.
+                */
+                boolean timeMax = (600000 < record.getTimestamp()-max.getTimestamp());
+                boolean timeMin = (600000 < record.getTimestamp()-min.getTimestamp());
+                if (timeMax==false && Math.abs(record.getMeasurementValue()-max.getMeasurementValue()) > 5) {
                     triggerAlert(new Alert(id, "Saturation Trend Alert", record.getTimestamp()));
                 }
-                j++;
+                if (timeMin==false && Math.abs(record.getMeasurementValue()-min.getMeasurementValue()) > 5) {
+                    triggerAlert(new Alert(id, "Saturation Trend Alert", record.getTimestamp()));
+                }
+                if (timeMax || (record.getMeasurementValue()>max.getMeasurementValue())) {
+                    max = record;
+                }
+                if (timeMin || (record.getMeasurementValue()<min.getMeasurementValue())) {
+                    min = record;
+                }
             }
-        }
+    }
     }
 
     private void evaluateBloodPressure(ArrayList<PatientRecord> systolicBloodPressure, ArrayList<PatientRecord> diastolicBloodPressure) {
@@ -184,6 +210,10 @@ public class AlertGenerator {
             }
             if (i>1) {
                 // ECG trend check
+                /*
+                 * The requirements are ambiguous, so I assumed that the alert should be triggered
+                 * when the difference between the current heart rate and the previous heart rate is greater than the previous difference.
+                 */
                 if (Math.abs(lastDiff-diff) > Math.abs(lastDiff)) {
                     triggerAlert(new Alert(id, "Heart Rate Trend Alert", temp1.getTimestamp()));
                 }
@@ -202,6 +232,7 @@ public class AlertGenerator {
      * @param alert the alert object containing details about the alert condition
      */
     private void triggerAlert(Alert alert) {
+        // Basically, this method should call everything that is needed to handle the alert from other systems.
         MonitoringSystem.notifyStaff(alert);
         MonitoringSystem.logAlert(alert);
         // Additional alert handling logic can be added here
