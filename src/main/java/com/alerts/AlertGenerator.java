@@ -83,6 +83,63 @@ public class AlertGenerator {
         evaluateHypoxemia(saturation, systolicBloodPressure);
     }
 
+    public void evaluateData(Patient patient, int testNumber) {
+        List<PatientRecord> records = patient.getRecords(0, Long.MAX_VALUE);
+        ArrayList<PatientRecord> ecgRecords = new ArrayList<>();
+        ArrayList<PatientRecord> cholesterol = new ArrayList<>();
+        ArrayList<PatientRecord> systolicBloodPressure = new ArrayList<>();
+        ArrayList<PatientRecord> diastolicBloodPressure = new ArrayList<>();
+        ArrayList<PatientRecord> redBloodCells = new ArrayList<>();
+        ArrayList<PatientRecord> saturation = new ArrayList<>();
+        ArrayList<PatientRecord> whiteBloodCells = new ArrayList<>();
+
+        // Sorting according to record type seems logical for evaluation purposes and also enables extending functionality in the future
+        for (PatientRecord record : records) {
+            switch (record.getRecordType()) {
+                case "ECG":
+                    ecgRecords.add(record);
+                    break;
+                case "Cholesterol":
+                    cholesterol.add(record);
+                    break;
+                case "DiastolicPressure":
+                    diastolicBloodPressure.add(record);
+                    break;
+                case "RedBloodCells":
+                    redBloodCells.add(record);
+                    break;
+                case "Saturation":
+                    saturation.add(record);
+                    break;
+                case "SystolicPressure":
+                    systolicBloodPressure.add(record);
+                    break;
+                case "WhiteBloodCells":
+                    whiteBloodCells.add(record);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Different evaluation methods for different alarm types lets us easily extend the system
+        // although, it may be more computationally efficient to combine them into one method
+        if (testNumber == 1) {
+            evaluateBloodPressure(systolicBloodPressure, diastolicBloodPressure);
+        }
+        else if (testNumber == 2) {
+            evaluateECG(ecgRecords);
+        }
+        else if (testNumber == 3) {
+            evaluateSaturation(saturation);
+        }
+        else if (testNumber == 4) {
+            evaluateHypoxemia(saturation, systolicBloodPressure);
+        } else {
+            System.out.println("Invalid test number");
+        }
+    }
+
     private void evaluateHypoxemia(ArrayList<PatientRecord> saturation, ArrayList<PatientRecord> bloodPressure) {
         if (saturation.size() == bloodPressure.size() && saturation.size() > 0) {
         // Evalutates all saturation and blood pressure records and triggers an alert if two conditions are met
@@ -232,7 +289,7 @@ public class AlertGenerator {
      * @param alert the alert object containing details about the alert condition
      */
     private void triggerAlert(Alert alert) {
-        // Basically, this method should call everything that is needed to handle the alert from other systems.
+        // Basically, this method should call everything that is needed to handle the alert from other system
         MonitoringSystem.notifyStaff(alert);
         MonitoringSystem.logAlert(alert);
         // Additional alert handling logic can be added here

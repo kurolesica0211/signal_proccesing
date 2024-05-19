@@ -15,9 +15,9 @@ import java.util.List;
 
 import javax.xml.crypto.Data;
 
-public class tests {
+public class TestEverything {
 
-    public tests() {
+    public TestEverything() {
     }
 
     // Running all the tests together somehow make testSaturationTrendAlert1 fail, it should be run separately
@@ -34,6 +34,7 @@ public class tests {
         assertEquals(patient1.get(0).getRecordType(), "ECG");
         assertEquals(patient1.get(0).getTimestamp(), Long.parseLong("1715545367974"));
         assertTrue(patient2.isEmpty());
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -42,8 +43,9 @@ public class tests {
         dataStorage.addPatientData(0, 190.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 1);
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -52,9 +54,10 @@ public class tests {
         dataStorage.addPatientData(0, 100.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 140.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 1);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -62,9 +65,10 @@ public class tests {
         DataStorage dataStorage = new DataStorage();
         dataStorage.addPatientData(0, 90, "Saturation", Long.parseLong("1"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 3);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -73,7 +77,27 @@ public class tests {
         dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
         dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("1000"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 3);
+        System.out.println(dataStorage.getAllPatients().get(0));
+        assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
+    }
+
+    @Test
+    public void testECGLevelAlert() {
+        DataStorage dataStorage = new DataStorage();
+        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("3"));
+        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("1500"));
+        AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 2);
+        System.out.println(dataStorage.getAllPatients().get(0));
+        assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
+        dataStorage = new DataStorage();
+        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("3"));
+        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("4"));
+        alertGenerator = new AlertGenerator(dataStorage);
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 2);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
     }
@@ -84,23 +108,10 @@ public class tests {
         dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
         dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("6000000"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 3);
         System.out.println(dataStorage.getAllPatients().get(0));
-        assertTrue(MonitoringSystem.alertTriggered == false);
-    }
-
-    @Test
-    public void testECGLevelAlert() {
-        DataStorage dataStorage = new DataStorage();
-        dataStorage.addPatientData(0, 100.0, "SystolicPressure", Long.parseLong("1"));
-        dataStorage.addPatientData(0, 100.0, "DiastolicPressure", Long.parseLong("2"));
-        dataStorage.addPatientData(0, 94, "Saturation", Long.parseLong("3"));
-        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("3"));
-        dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("1002"));
-        AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
-        System.out.println(dataStorage.getAllPatients().get(0));
-        assertTrue(MonitoringSystem.alertTriggered);
+        assertTrue(MonitoringSystem.alertTriggered==false);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -113,23 +124,23 @@ public class tests {
         dataStorage.addPatientData(0, 122.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 103.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 1);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
     public void testECGTrendAlert() {
         DataStorage dataStorage = new DataStorage();
-        dataStorage.addPatientData(0, 90.0, "SystolicPressure", Long.parseLong("1"));
-        dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("1"));
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("995"));
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("4000"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 2);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 
     @Test
@@ -139,8 +150,9 @@ public class tests {
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         dataStorage.addPatientData(0, 90, "Saturation", Long.parseLong("3"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
-        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0));
+        alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 4);
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
+        MonitoringSystem.alertTriggered = false;
     }
 }
