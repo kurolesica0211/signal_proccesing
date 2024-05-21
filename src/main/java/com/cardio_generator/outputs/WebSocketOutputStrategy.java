@@ -11,13 +11,14 @@ public class WebSocketOutputStrategy implements OutputStrategy {
 
     public WebSocketOutputStrategy(int port) {
         server = new SimpleWebSocketServer(new InetSocketAddress(port));
+        System.out.println("Server address: "+server.getAddress());
         System.out.println("WebSocket server created on port: " + port + ", listening for connections...");
         server.start();
     }
 
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
-        String message = String.format("%d,%d,%s,%s", patientId, timestamp, label, data);
+        String message = String.format("Patient ID: %d, Timestamp: %d, Label: %s, Data: %s", patientId, timestamp, label, data);
         // Broadcast the message to all connected clients
         for (WebSocket conn : server.getConnections()) {
             conn.send(message);

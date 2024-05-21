@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 public class FileReader implements DataReader {
     private String path = " ";
+
     public FileReader(String path) {
         this.path = path;
     }
@@ -43,7 +44,7 @@ public class FileReader implements DataReader {
 
     private double formatValue(String value) {
         char[] valueChars = value.toCharArray();
-        
+        // Any new case of writing data value should be added here to avoid errors
         if (valueChars[valueChars.length - 1] == '%') {
             return Double.parseDouble(value.substring(0, valueChars.length - 1));
         }
@@ -72,5 +73,15 @@ public class FileReader implements DataReader {
                 System.out.println("Patient ID: " + record.getPatientId() + " - Record: " + record.getRecordType() + " - " + record.getMeasurementValue() + " - " + record.getTimestamp());
             }
         }
+    }
+
+    @Override
+    public void listenForData(DataStorage dataStorage, String address) {
+        throw new UnsupportedOperationException("Unimplemented method 'listenForData' is not used in this context");
+    }
+
+    @Override
+    public void stopListening() {
+        throw new UnsupportedOperationException("Unimplemented method 'stopListening' is not used in this context");
     }
 }

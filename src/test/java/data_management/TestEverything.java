@@ -1,19 +1,15 @@
 package data_management;
 
+import org.java_websocket.WebSocket;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.data_management.DataStorage;
-import com.data_management.FileReader;
-import com.data_management.Patient;
-import com.data_management.PatientRecord;
+import com.data_management.*;
 import com.alerts.AlertGenerator;
 import com.alerts.MonitoringSystem;
-import com.cardio_generator.HealthDataSimulator;
 
+import java.net.InetSocketAddress;
 import java.util.List;
-
-import javax.xml.crypto.Data;
 
 public class TestEverything {
 
@@ -154,5 +150,58 @@ public class TestEverything {
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
         MonitoringSystem.alertTriggered = false;
+    }
+
+    @Test
+    public void testWebSocketReaderBasic() throws InterruptedException {
+        String URI = "ws://localhost:1024";
+        DataStorage dataStorage = new DataStorage();
+        DataReader webSocket = new WebSocketReader();
+        TestWebSocketServer server = new TestWebSocketServer(1024);
+        server.start();
+        webSocket.listenForData(dataStorage, URI);
+        try {
+            System.out.println("Number of connections: "+server.getConnections().size());
+            for (WebSocket conn : server.getConnections()) {
+                System.out.println(conn.getRemoteSocketAddress());
+                conn.send("0: 60, 1: 70, 2: 80, 3: 90");
+            }
+            Thread.sleep(1000);
+            PatientRecord rec = dataStorage.getAllPatients().get(0).getRecords(0, Long.MAX_VALUE).get(0);
+            assertEquals(rec.getMeasurementValue(), 90, 0);
+            assertEquals(rec.getRecordType(), "80");
+            assertEquals(rec.getTimestamp(), 70);
+            assertEquals(rec.getPatientId(), 60);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            webSocket.stopListening();
+            server.stop();
+        }
+    }
+
+    @Test
+    public void testWebSocketReaderCorruptTextHandling() throws InterruptedException {
+        String URI = "ws://localhost:1024";
+        DataStorage dataStorage = new DataStorage();
+        DataReader webSocket = new WebSocketReader();
+        TestWebSocketServer server = new TestWebSocketServer(1024);
+        server.start();
+        webSocket.listenForData(dataStorage, URI);
+        try {
+            System.out.println("Number of connections: "+server.getConnections().size());
+            for (WebSocket conn : server.getConnections()) {
+                System.out.println(conn.getRemoteSocketAddress());
+                conn.send("sofsd;jfnb: klnffl, dgsgdf: dlnfgdlf");
+            }
+            Thread.sleep(1000);
+            assertTrue(dataStorage.getAllPatients().isEmpty());
+            webSocket.stopListening();
+            server.stop();
+        } catch (Exception e) {
+            webSocket.stopListening();
+            server.stop();
+            e.printStackTrace();
+        }
     }
 }
