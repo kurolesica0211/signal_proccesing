@@ -154,6 +154,9 @@ public class TestEverything {
 
     @Test
     public void testWebSocketReaderBasic() throws InterruptedException {
+        // Do not run this and next tests together, and also wait some time between them
+        // For some reason, it tells that the address is already in use, though I close the server
+        // Also, though the VS does not show any errors, because of try catch, you can check in the debug console that it does not spit any exceptions (didn't for me anyway)
         String URI = "ws://localhost:1024";
         DataStorage dataStorage = new DataStorage();
         DataReader webSocket = new WebSocketReader();
@@ -182,7 +185,7 @@ public class TestEverything {
 
     @Test
     public void testWebSocketReaderCorruptTextHandling() throws InterruptedException {
-        String URI = "ws://localhost:1024";
+        String URI = "ws://localhost:1025";
         DataStorage dataStorage = new DataStorage();
         DataReader webSocket = new WebSocketReader();
         TestWebSocketServer server = new TestWebSocketServer(1024);
