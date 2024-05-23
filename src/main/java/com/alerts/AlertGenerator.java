@@ -3,6 +3,8 @@ package com.alerts;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alerts.alert_creating.*;
+import com.alerts.alert_types.Alert;
 import com.data_management.*;
 
 /**
@@ -13,6 +15,7 @@ import com.data_management.*;
  */
 public class AlertGenerator {
     private DataStorage dataStorage;
+    AlertFactory alertFactory;
 
     /**
      * Constructs an {@code AlertGenerator} with a specified {@code DataStorage}.
@@ -38,6 +41,9 @@ public class AlertGenerator {
      */
     public void evaluateData(Patient patient) {
         List<PatientRecord> records = patient.getRecords(0, Long.MAX_VALUE);
+        if (records.size() == 0) {
+            return;
+        }
         ArrayList<PatientRecord> ecgRecords = new ArrayList<>();
         ArrayList<PatientRecord> cholesterol = new ArrayList<>();
         ArrayList<PatientRecord> systolicBloodPressure = new ArrayList<>();
@@ -83,6 +89,7 @@ public class AlertGenerator {
         evaluateHypoxemia(saturation, systolicBloodPressure);
     }
 
+    // Overloaded method to evaluate data for a specific test
     public void evaluateData(Patient patient, int testNumber) {
         List<PatientRecord> records = patient.getRecords(0, Long.MAX_VALUE);
         ArrayList<PatientRecord> ecgRecords = new ArrayList<>();
@@ -122,8 +129,6 @@ public class AlertGenerator {
             }
         }
 
-        // Different evaluation methods for different alarm types lets us easily extend the system
-        // although, it may be more computationally efficient to combine them into one method
         if (testNumber == 1) {
             evaluateBloodPressure(systolicBloodPressure, diastolicBloodPressure);
         }
@@ -159,7 +164,8 @@ public class AlertGenerator {
 
                 // Hypoxemia check
                 if (triger1 && triger2) {
-                    triggerAlert(new Alert(id,"Hypotensive Hypoxemia", record.getTimestamp()));
+                    alertFactory = new HypoxemiaAlertFactory();
+                    triggerAlert(alertFactory.createAlert(id, "this and this", record.getTimestamp()));
                 }
             }
         }
@@ -168,6 +174,7 @@ public class AlertGenerator {
     private void evaluateSaturation(ArrayList<PatientRecord> saturation) {
         // Checkts saturation data for low saturation level or dangerous trend
         if (saturation.size() > 0) {
+            alertFactory = new BloodOxygenAlertFactory();
             PatientRecord max = saturation.get(0);
             PatientRecord min = max;
             PatientRecord record = max;
@@ -176,7 +183,7 @@ public class AlertGenerator {
                 record = saturation.get(i);
                 // Saturation level check
                 if (record.getMeasurementValue() < 92) {
-                    triggerAlert(new Alert(id, "Low Saturation", record.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "this and this", record.getTimestamp()));
                 }
 
                 // Saturation trend check
@@ -188,10 +195,10 @@ public class AlertGenerator {
                 boolean timeMax = (600000 < record.getTimestamp()-max.getTimestamp());
                 boolean timeMin = (600000 < record.getTimestamp()-min.getTimestamp());
                 if (timeMax==false && Math.abs(record.getMeasurementValue()-max.getMeasurementValue()) > 5) {
-                    triggerAlert(new Alert(id, "Saturation Trend Alert", record.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend this and this", record.getTimestamp()));
                 }
                 if (timeMin==false && Math.abs(record.getMeasurementValue()-min.getMeasurementValue()) > 5) {
-                    triggerAlert(new Alert(id, "Saturation Trend Alert", record.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend this and this", record.getTimestamp()));
                 }
                 if (timeMax || (record.getMeasurementValue()>max.getMeasurementValue())) {
                     max = record;
@@ -204,20 +211,21 @@ public class AlertGenerator {
     }
 
     private void evaluateBloodPressure(ArrayList<PatientRecord> systolicBloodPressure, ArrayList<PatientRecord> diastolicBloodPressure) {
+        alertFactory = new BloodPressureAlertFactory();
         for (int i = 0; i<systolicBloodPressure.size(); i++) {
             // Pressure level check
             PatientRecord temp0 = systolicBloodPressure.get(i);
             PatientRecord temp1 = diastolicBloodPressure.get(i);
             String id = String.valueOf(temp0.getPatientId());
             if (temp1.getMeasurementValue() > 120) {
-                triggerAlert(new Alert(id, "Diastolic Pressure High", temp1.getTimestamp()));
+                triggerAlert(alertFactory.createAlert(id, "diastolic pressure high", temp1.getTimestamp()));
             } else if (temp1.getMeasurementValue() < 60) {
-                triggerAlert(new Alert(id, "Diastolic Pressure Low", temp1.getTimestamp()));
+                triggerAlert(alertFactory.createAlert(id, "diastolic pressure low", temp1.getTimestamp()));
             }
             if (temp0.getMeasurementValue() > 180) {
-                triggerAlert(new Alert(id, "Systolic Pressure High", temp0.getTimestamp()));
+                triggerAlert(alertFactory.createAlert(id, "systolic pressure high", temp0.getTimestamp()));
             } else if (temp0.getMeasurementValue() < 90) {
-                triggerAlert(new Alert(id, "Systolic Pressure Low", temp0.getTimestamp()));
+                triggerAlert(alertFactory.createAlert(id, "systolic pressure low", temp0.getTimestamp()));
             }
 
             // Blood Pressure trend check
@@ -230,19 +238,19 @@ public class AlertGenerator {
                 PatientRecord record21 = diastolicBloodPressure.get(i-2);
                 if ((record10.getMeasurementValue()-record00.getMeasurementValue())>10
                     && (record20.getMeasurementValue()-record10.getMeasurementValue())>10) {
-                    triggerAlert(new Alert(id, "Blood Pressure Trend Alert", record00.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend alert", record00.getTimestamp()));
                 }
                 if ((record00.getMeasurementValue()-record10.getMeasurementValue())>10
                     && (record10.getMeasurementValue()-record20.getMeasurementValue())>10) {
-                    triggerAlert(new Alert(id, "Blood Pressure Trend Alert", record00.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend alert", record00.getTimestamp()));
                 }
                 if ((record11.getMeasurementValue()-record01.getMeasurementValue())>10
                     && (record21.getMeasurementValue()-record11.getMeasurementValue())>10) {
-                    triggerAlert(new Alert(id, "Blood Pressure Trend Alert", record00.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend alert", record00.getTimestamp()));
                 }
                 if ((record01.getMeasurementValue()-record11.getMeasurementValue())>10
                     && (record11.getMeasurementValue()-record21.getMeasurementValue())>10) {
-                    triggerAlert(new Alert(id, "Blood Pressure Trend Alert", record00.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "trend alert", record00.getTimestamp()));
                 }
             }
         }
@@ -250,6 +258,7 @@ public class AlertGenerator {
 
     private void evaluateECG(ArrayList<PatientRecord> ecgRecords) {
         double lastDiff = 0;
+        alertFactory = new ECGAlertFactory();
         for (int i = 0; i<ecgRecords.size(); i++) {
             String id = String.valueOf(ecgRecords.get(0).getPatientId());
             double diff = 0;
@@ -259,10 +268,10 @@ public class AlertGenerator {
                 double heartRate = 60/(diff);
                 // ECG level check
                 if (heartRate < 50) {
-                    triggerAlert(new Alert(id, "Heart Rate Low", temp1.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "high heart rate", temp1.getTimestamp()));
                 }
                 if (heartRate > 100) {
-                    triggerAlert(new Alert(id, "Heart Rate High", temp1.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "low heart rate", temp1.getTimestamp()));
                 }
             }
             if (i>1) {
@@ -270,9 +279,10 @@ public class AlertGenerator {
                 /*
                  * The requirements are ambiguous, so I assumed that the alert should be triggered
                  * when the difference between the current heart rate and the previous heart rate is greater than the previous difference.
+                 * (odd assumption, but just for the sake of the example)
                  */
                 if (Math.abs(lastDiff-diff) > Math.abs(lastDiff)) {
-                    triggerAlert(new Alert(id, "Heart Rate Trend Alert", temp1.getTimestamp()));
+                    triggerAlert(alertFactory.createAlert(id, "dangerous trend", temp1.getTimestamp()));
                 }
                 lastDiff = diff;
             }

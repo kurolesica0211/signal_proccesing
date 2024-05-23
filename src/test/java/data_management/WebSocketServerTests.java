@@ -6,9 +6,9 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-public class TestWebSocketServer extends WebSocketServer {
+public class WebSocketServerTests extends WebSocketServer {
 
-    public TestWebSocketServer(int port) {
+    public WebSocketServerTests(int port) {
         super(new InetSocketAddress("localhost", port));
     }
 

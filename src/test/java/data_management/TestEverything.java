@@ -7,6 +7,13 @@ import static org.junit.Assert.*;
 import com.data_management.*;
 import com.alerts.AlertGenerator;
 import com.alerts.MonitoringSystem;
+import com.alerts.alert_creating.AlertFactory;
+import com.alerts.alert_creating.BloodOxygenAlertFactory;
+import com.alerts.alert_decoration.PriorityAlertDecorator;
+import com.alerts.alert_decoration.RepeatedAlertDecoration;
+import com.alerts.alert_types.Alert;
+import com.alerts.alert_types.BloodOxygenAlert;
+import com.cardio_generator.HealthDataSimulator;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -20,7 +27,7 @@ public class TestEverything {
     // THERE ARE TEST FILES IN BIN FOLDER, MAKE SURE THEY ARE IN PATEINTDATA FODLER BEFORE RUNNING THE TESTS
     @Test
     public void testFileReaderAndGetRecords() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         FileReader fileReader = new FileReader("patientData");
         fileReader.readData(dataStorage);
         List<Patient> patients = dataStorage.getAllPatients();
@@ -35,7 +42,7 @@ public class TestEverything {
 
     @Test
     public void testSystolicBloodPressureLevelAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 190.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
@@ -46,7 +53,7 @@ public class TestEverything {
 
     @Test
     public void testDistolicBloodPressureLevelAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 100.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 140.0, "DiastolicPressure", Long.parseLong("2"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
@@ -58,7 +65,7 @@ public class TestEverything {
 
     @Test
     public void testSaturationLevelAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 90, "Saturation", Long.parseLong("1"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
         alertGenerator.evaluateData(dataStorage.getAllPatients().get(0), 3);
@@ -69,7 +76,7 @@ public class TestEverything {
 
     @Test
     public void testSaturaitonTrendAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
         dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("1000"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
@@ -81,7 +88,7 @@ public class TestEverything {
 
     @Test
     public void testECGLevelAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("3"));
         dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("1500"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
@@ -89,7 +96,7 @@ public class TestEverything {
         System.out.println(dataStorage.getAllPatients().get(0));
         assertTrue(MonitoringSystem.alertTriggered);
         MonitoringSystem.alertTriggered = false;
-        dataStorage = new DataStorage();
+        dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("3"));
         dataStorage.addPatientData(0, 0.1, "ECG", Long.parseLong("4"));
         alertGenerator = new AlertGenerator(dataStorage);
@@ -100,7 +107,7 @@ public class TestEverything {
 
     @Test
     public void testSaturationTrendAlert1() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 93, "Saturation", Long.parseLong("1"));
         dataStorage.addPatientData(0, 99, "Saturation", Long.parseLong("6000000"));
         AlertGenerator alertGenerator = new AlertGenerator(dataStorage);
@@ -112,7 +119,7 @@ public class TestEverything {
 
     @Test
     public void testBloodPressureTrendAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 90.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         dataStorage.addPatientData(0, 101.0, "SystolicPressure", Long.parseLong("1"));
@@ -128,7 +135,7 @@ public class TestEverything {
 
     @Test
     public void testECGTrendAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("1"));
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("995"));
         dataStorage.addPatientData(0, 101.0, "ECG", Long.parseLong("4000"));
@@ -141,7 +148,7 @@ public class TestEverything {
 
     @Test
     public void testHypoxemiaAlert() {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         dataStorage.addPatientData(0, 70.0, "SystolicPressure", Long.parseLong("1"));
         dataStorage.addPatientData(0, 80.0, "DiastolicPressure", Long.parseLong("2"));
         dataStorage.addPatientData(0, 90, "Saturation", Long.parseLong("3"));
@@ -158,9 +165,9 @@ public class TestEverything {
         // For some reason, it tells that the address is already in use, though I close the server
         // Also, though the VS does not show any errors, because of try catch, you can check in the debug console that it does not spit any exceptions (didn't for me anyway)
         String URI = "ws://localhost:1024";
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         DataReader webSocket = new WebSocketReader();
-        TestWebSocketServer server = new TestWebSocketServer(1024);
+        WebSocketServerTests server = new WebSocketServerTests(1024);
         server.start();
         webSocket.listenForData(dataStorage, URI);
         try {
@@ -186,9 +193,9 @@ public class TestEverything {
     @Test
     public void testWebSocketReaderCorruptTextHandling() throws InterruptedException {
         String URI = "ws://localhost:1025";
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         DataReader webSocket = new WebSocketReader();
-        TestWebSocketServer server = new TestWebSocketServer(1024);
+        WebSocketServerTests server = new WebSocketServerTests(1024);
         server.start();
         webSocket.listenForData(dataStorage, URI);
         try {
@@ -206,5 +213,20 @@ public class TestEverything {
             server.stop();
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testSingletonPattern() {
+        DataStorage dataStorage = DataStorage.getInstance();
+        DataStorage dataStorage2 = DataStorage.getInstance();
+        assertEquals(dataStorage, dataStorage2);
+
+        HealthDataSimulator healthDataSimulator = HealthDataSimulator.getInstance();
+        HealthDataSimulator healthDataSimulator2 = HealthDataSimulator.getInstance();
+        assertEquals(healthDataSimulator, healthDataSimulator2);
+
+        FileReader fileReader = new FileReader("patientData");
+        FileReader fileReader2 = new FileReader("patientData");
+        assertTrue(fileReader.equals(fileReader2)==false);
     }
 }

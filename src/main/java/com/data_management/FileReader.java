@@ -63,7 +63,7 @@ public class FileReader implements DataReader {
     }
 
     public static void main(String[] args) {
-        DataStorage dataStorage = new DataStorage();
+        DataStorage dataStorage = DataStorage.getInstance();
         FileReader fileReader = new FileReader("patientData");
         fileReader.readData(dataStorage);
         List<Patient> patients = dataStorage.getAllPatients();

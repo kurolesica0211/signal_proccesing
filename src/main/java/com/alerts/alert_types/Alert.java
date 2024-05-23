@@ -1,4 +1,6 @@
-package com.alerts;
+package com.alerts.alert_types;
+
+import com.alerts.MonitoringSystem;
 
 // Represents an alert
 public class Alert {
@@ -22,5 +24,12 @@ public class Alert {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    protected void triggerAlert(Alert alert) {
+        // Basically, this method should call everything that is needed to handle the alert from other system
+        MonitoringSystem.notifyStaff(alert);
+        MonitoringSystem.logAlert(alert);
+        // Additional alert handling logic can be added here
     }
 }

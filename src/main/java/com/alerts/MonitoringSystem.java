@@ -1,5 +1,7 @@
 package com.alerts;
 
+import com.alerts.alert_types.Alert;
+
 // A system through which staff can monitor patients
 public class MonitoringSystem {
     // Flags are needed for tests
